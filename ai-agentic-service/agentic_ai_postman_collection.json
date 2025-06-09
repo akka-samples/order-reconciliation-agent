@@ -1,0 +1,315 @@
+{
+	"info": {
+		"_postman_id": "de9b7d8e-bd85-4711-92f8-988f0c28ab6f",
+		"name": "Agentic AI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3209016"
+	},
+	"item": [
+		{
+			"name": "Debugging",
+			"item": [
+				{
+					"name": "CreateSales",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"1\",\n    \"amount\": 100.2,\n    \"status\": \"pending\",\n    \"date\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/sales",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePayment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"1\",\n    \"amount\": 100.2,\n    \"paymentDate\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reconcile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"123\",\n    \"amount\": 100.2,\n    \"paymentDate\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/reconcile/customer-O8T79Vd4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"reconcile",
+								"customer-O8T79Vd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetInvoiceForCustomer",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"123\",\n    \"amount\": 100.2,\n    \"paymentDate\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/sales/customer-26GegFqX/invoice-C6mpY11C",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"sales",
+								"customer-26GegFqX",
+								"invoice-C6mpY11C"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCustomerDetails",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"123\",\n    \"amount\": 100.2,\n    \"paymentDate\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/customers/customer-BFIByZTi",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"customers",
+								"customer-BFIByZTi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Incidents",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1\",\n    \"invoiceId\" : \"1\",\n    \"customerId\": \"123\",\n    \"amount\": 100.2,\n    \"paymentDate\": \"2025-05-20\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/external/api/incidents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"external",
+								"api",
+								"incidents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "simulate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nrOfAddressIssues\": 0,\n    \"nrOfPaymentMismatchIssues\" : 0,\n    \"nrOfReconciliationBeforePaymentIssues\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9001/external/api/simulation",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"external",
+						"api",
+						"simulation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddPrompt",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"react-workflow-prompt\",\n    \"content\": \"You run in a loop of Thought, Tool, PAUSE, Observation.\\r\\nAt the end of the loop you output an Answer, when you have the final answer. Make sure you include \\\"Answer:\\\" in your output in this case.\\r\\nUse Thought to describe your thoughts about the question you have been asked.\\r\\nUse Tool to run one of the tools available to you - then return PAUSE. Make sure you include exactly the term \\\"PAUSE\\\" in your output in this case.\\r\\nObservation will be the result of running those tools.\\r\\nMake sure that you perform one step at a time and wait for the next step to be called.\\r\\nIf you output a Thought, you should not output a Tool or an Answer after that.\\r\\nIf you output a Tool, you should not output an Answer after that. Make Sure to return PAUSE after outputting a Tool. And DONT FORGET TO OUTPUT AS JSON. ONLY JSON\\r\\n\\r\\nALWAYS query and verify the existing data by query tools provided BEFORE CONCLUDING RETRY action.\\r\\nTo VERIFY the exiting data use the tools which gets the relevant data.\\r\\n\\r\\nAlways REMEMBER THIS.\\r\\n\\r\\nYour available tools are:\\r\\n        [\\r\\n{\\r\\n  \\\"get_customer_details\\\" : {\\r\\n    \\\"description\\\": \\\"takes userId as input and outputs user:{userId, name, address, age, postalcode} as output\\\",\\r\\n    \\\"example\\\": \\\"\\r\\n        tool: get_customer_details\\r\\n        input: 123\\r\\n        output: {userId:123, name:ABC, address:123 sfd street, age: 44, postalcode: 1234} s\\r\\n        \\\"\\r\\n    },\\r\\n  \\\"get_sales_details\\\" : {\\r\\n    \\\"description\\\":\\\"takes userId and invoiceID as input and outputs The invoice with {userId, invoiceId, amount, date }\\\"\\r\\n    \\\"example\\\": \\\"\\r\\n        tool: get_sales_details\\r\\n        input: user123, inv001\\r\\n        output: {userId:user123 , invoiceId: inv001, amount: $1000, date:  2025-03-01}\\r\\n        \\\"\\r\\n    },\\r\\n  \\\"get_payment_details\\\": {\\r\\n    \\\"description\\\":\\\"takes userId and invoiceID as input and outputs get_payment_details {paymentId, userId, invoiceId, amount, date},\\r\\n    \\\"example\\\": \\\"\\r\\n        tool: get_payment_details\\r\\n        input: user123,inv001\\r\\n        output: {paymentId:p001, userId:user123, invoiceId:inv001, amount: $1000, date: 2025-03-01}\\r\\n        \\\"\\r\\n    },\\r\\n\\r\\n  \\\"update_payment_request\\\": {\\r\\n  \\\"description\\\": \\\"If there is any discrepancy in the reconciliation due to invoice mismatch or missing billing address details, use this tool to get the additional discrepancy payment or billing address.\\r\\n  The INPUT MUST BE FORMED with values separated by a comma separated String. The tool uses string operation like split. So give in the same format. I TRUST YOU for the input format.Dont pass black values amount. default shoudl be 0 for amoutn. Please.\\\"\\r\\n  \\\"example\\\": \\\"\\r\\n      tool: retry_payment_request\\r\\n      input: <payment Id>,<invoice_id>,<discrepancy-amount>,<customer_id>,<payment_date>,<billing_address>,<postal_code>\\r\\n      output: 201\\r\\n  \\\"\\r\\n}\\r\\n  \\\"retry_reconciliation_request\\\": {\\r\\n  \\\"description\\\": \\\"Sometime reconciliation fails in the upstream system due to data not available or data error analyse the steps and check whether retriggering reconsilation will work\\\"\\r\\n  \\\"example\\\": \\\"\\r\\n      tool: retry_reconciliation_request\\r\\n      input: user123\\r\\n      output: 200\\r\\n  \\\"\\r\\n}\\r\\n           ]\\r\\n\\r\\nExample session 1:\\r\\nQuestion: What is the capital of France?\\r\\n{\\r\\n\\\"Thought\\\": \\\"I should look up France on Wikipedia.\\\",\\r\\n\\\"Tool\\\": \\\"wikipedia: \\\",\\r\\n\\\"input: \\\"France\\\",\\r\\n\\\"PAUSE\\\" : true\\r\\n}\\r\\nYou will be called again with this:\\r\\n{\\\"Observation\\\": \\\"France is a country. The capital is Paris\\\"}\\r\\nYou then output:\\r\\n{\\\"Answer\\\": \\\"The capital of France is Paris\\\"}\\r\\n====================================\\r\\nExample session 2:\\r\\nQuestion: Who is the current president of the United States?\\r\\n{\\r\\n\\\"Thought\\\": \\\"I should look up the current president of the United States on duckduckgo.\\\",\\r\\n\\\"Tool\\\": \\\"duckduckgo\\\",\\r\\n\\\"input\\\": \\\"current president of the United States\\\",\\r\\n\\\"PAUSE\\\": true \\r\\n}\\r\\nYou will be called again with this:\\r\\n{\\\"Observation\\\": \\\"Joe biden elected president of the United States in 2024.\\\"}\\r\\nYou then output:\\r\\n{\\\"Answer\\\": \\\"Joe biden is the current president of the United States\\\"}\\r\\n====================================\\r\\nExample session 3:\\r\\nQuestion: What is the result of this expression \\\"2 * 3 + 4 \\/ 2 * 10 + 12 \\/ 32\\\"?\\r\\n\\r\\n{\\r\\n\\\"Thought\\\": \\\"I should calculate using the calculator tool.\\\",\\r\\n\\\"Tool\\\": \\\"calculator\\\",\\r\\n\\\"input\\\":  \\\"2 * 3 + 4 \\/ 2 * 10 + 12 \\/ 32\\\",\\r\\n\\\"PAUSE\\\": true\\r\\n}\\r\\nYou will be called again with this:\\r\\n{\\\"Observation\\\": \\\"26.375\\\"}\\r\\nYou then output:\\r\\n{\\\"Answer\\\": \\\"The result of \\\"2 * 3 + 4 \\/ 2 * 10 + 12 \\/ 32\\\" is 26.375\\\"}\\r\\n====================================\\r\\nExample session 4:\\r\\nQuestion: What are the betting sites predicting on the American Presidential Election? Who is going to win according to them?\\r\\n{\\r\\n\\\"Thought\\\": \\\"I should look up the current president of the United States on serp_api_tool.\\\",\\r\\n\\\"Tool\\\": \\\"serp_api_tool\\\",\\r\\n\\\"input\\\": \\\"American Presidential Election betting odds\\\"\\r\\n\\\"PAUSE\\\": true\\r\\n}\\r\\nYou will be called again with this:\\r\\n{\\\"Observation\\\": \\\"Donald Trump has a 48% per cent chance of winning against Kamala Harris with a 51% chance.\\\"}\\r\\nYou then output:\\r\\n{\\\"Answer\\\": \\\"Joe biden is the current president of the United States\\\"}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9000/api/prompts",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"prompts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAgentUpdates",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"exceptionDetails\": \"test\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:9000/api/react-agent/f0e845f1-6edb-4f5a-b85c-fa8c5726490e",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"react-agent",
+						"f0e845f1-6edb-4f5a-b85c-fa8c5726490e"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
