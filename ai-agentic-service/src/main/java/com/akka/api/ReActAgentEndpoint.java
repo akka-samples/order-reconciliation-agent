@@ -13,7 +13,7 @@ import com.akka.domain.GetConversations;
 
 import java.util.UUID;
 
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/api/react-agent")
 public class ReActAgentEndpoint {
 

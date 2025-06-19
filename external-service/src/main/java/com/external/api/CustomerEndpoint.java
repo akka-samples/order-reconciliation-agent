@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.UUID;
 
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/external/api")
 public class CustomerEndpoint {
 

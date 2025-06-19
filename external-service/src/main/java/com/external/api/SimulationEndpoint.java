@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/external/api")
 public class SimulationEndpoint {
 

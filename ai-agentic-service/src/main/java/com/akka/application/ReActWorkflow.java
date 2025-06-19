@@ -17,6 +17,8 @@ import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +59,8 @@ public class ReActWorkflow extends Workflow<WorkFlowState> {
         return workflow()
                 .addStep(prepare())
                 .addStep(callLLM())
-                .addStep(toolExecution());
+                .addStep(toolExecution())
+                .timeout(Duration.of(10, ChronoUnit.SECONDS));
     }
 
     private Step prepare() {
