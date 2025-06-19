@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 @HttpEndpoint("/external/api")
@@ -29,73 +27,68 @@ public class CustomerEndpoint {
     }
 
     @Post("/sales")
-    public CompletionStage<CustomerEntity.CustomerEvent.InvoiceAdded> createSalesInvoice(SaleInvoice saleInvoice) {
+    public CustomerEntity.CustomerEvent.InvoiceAdded createSalesInvoice(SaleInvoice saleInvoice) {
         return componentClient
                 .forEventSourcedEntity(saleInvoice.getCustomerId())
                 .method(CustomerEntity::addSalesInvoice)
-                .invokeAsync(saleInvoice);
+                .invoke(saleInvoice);
     }
 
     @Post("/payments")
-    public CompletionStage<CustomerEntity.CustomerEvent.PaymentAdded> createPayment(Payment payment) {
+    public CustomerEntity.CustomerEvent.PaymentAdded createPayment(Payment payment) {
         return componentClient
                 .forEventSourcedEntity(payment.customerId())
                 .method(CustomerEntity::addPayment)
-                .invokeAsync(payment);
+                .invoke(payment);
     }
 
     @Get("/reconcile/{customerId}")
-    public CompletionStage<String> reconcile(String customerId) {
-        return componentClient
+    public String reconcile(String customerId) {
+        var reconcileResponse = componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::reconcile)
-                .invokeAsync(new Reconcile(customerId))
-                .thenCompose(reconcileResponse -> {
-                    if (!reconcileResponse.isSuccess()) {
-                        log.info("Reconcile failed, reporting the incident");
-                        return componentClient
-                                .forWorkflow("incidents-workflow" + UUID.randomUUID().toString())
-                                .method(IncidentWorkflow::process)
-                                .invokeAsync(new Incident(UUID.randomUUID().toString(), reconcileResponse.message(), ""))
-                                .thenApply(a -> reconcileResponse.message());
-
-                    } else {
-                        return CompletableFuture.supplyAsync(reconcileResponse::message);
-                    }
-                });
+                .invoke(new Reconcile(customerId));
+        if (!reconcileResponse.isSuccess()) {
+            log.info("Reconcile failed, reporting the incident");
+            componentClient
+                    .forWorkflow("incidents-workflow" + UUID.randomUUID().toString())
+                    .method(IncidentWorkflow::process)
+                    .invoke(new Incident(UUID.randomUUID().toString(), reconcileResponse.message(), ""));
+        }
+        return reconcileResponse.message();
     }
 
     @Get("/incidents")
-    public CompletionStage<Collection<Incident>> getAllIncidents() {
+    public Collection<Incident> getAllIncidents() {
         return componentClient
                 .forEventSourcedEntity("incidents")
                 .method(IncidentEntity::getIncidents)
-                .invokeAsync();
+                .invoke();
     }
 
     @Get("/sales/{customerId}/{invoiceId}")
-    public CompletionStage<SaleInvoice> getSaleInvoiceByCustomerId(String customerId, String invoiceId) {
+    public SaleInvoice getSaleInvoiceByCustomerId(String customerId, String invoiceId) {
         return componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::getSaleInvoice)
-                .invokeAsync(invoiceId);
+                .invoke(invoiceId);
     }
 
 
     @Get("/payments/{customerId}/{invoiceId}")
-    public CompletionStage<Payment> getPaymentByCustomerId(String customerId, String invoiceId) {
+    public Payment getPaymentByCustomerId(String customerId, String invoiceId) {
         return componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::getPayment)
-                .invokeAsync(invoiceId);
+                .invoke(invoiceId);
     }
 
     @Get("/customers/{customerId}")
-    public CompletionStage<CustomerDetails> getCustomerDetails(String customerId) {
+    public CustomerDetails getCustomerDetails(String customerId) {
         return componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::getCustomerDetails)
-                .invokeAsync();
+                .invoke();
     }
 
 }
