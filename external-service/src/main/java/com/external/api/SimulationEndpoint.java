@@ -1,7 +1,6 @@
 package com.external.api;
 
 import akka.javasdk.annotations.Acl;
-import akka.javasdk.annotations.http.Get;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 @HttpEndpoint("/external/api")
@@ -37,18 +34,15 @@ public class SimulationEndpoint {
     }
 
     @Post("/simulation")
-    public CompletionStage<String> getAllIncidents(Simulate simulate) {
+    public String getAllIncidents(Simulate simulate) {
         return simulate(simulate);
     }
 
-
-    private CompletionStage<String> simulate(Simulate simulate) {
-        return CompletableFuture.supplyAsync(() -> {
-            generateAddressIssues(simulate);
-            generatePaymentMismatchIssues(simulate);
-            generateReconciliationBeforePaymentIssues(simulate);
-            return "created";
-        });
+    private String simulate(Simulate simulate) {
+        generateAddressIssues(simulate);
+        generatePaymentMismatchIssues(simulate);
+        generateReconciliationBeforePaymentIssues(simulate);
+        return "created";
     }
 
     private void generateReconciliationBeforePaymentIssues(Simulate simulate) {
@@ -99,34 +93,28 @@ public class SimulationEndpoint {
         componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::addSalesInvoice)
-                .invokeAsync(saleInvoice)
-                .toCompletableFuture().join();
+                .invoke(saleInvoice);
     }
 
     private void reconcile(String customerId) {
-        componentClient
+        var reconcileResponse = componentClient
                 .forEventSourcedEntity(customerId)
                 .method(CustomerEntity::reconcile)
-                .invokeAsync(new Reconcile(customerId))
-                .thenCompose(reconcileResponse -> {
-                    if (!reconcileResponse.isSuccess()) {
-                        log.info("Reconcile failed, reporting the incident");
-                        return componentClient
-                                .forWorkflow("incidents-workflow" + UUID.randomUUID().toString())
-                                .method(IncidentWorkflow::process)
-                                .invokeAsync(new Incident(UUID.randomUUID().toString(), reconcileResponse.message(), ""))
-                                .thenApply(a -> reconcileResponse);
-                    } else {
-                        return CompletableFuture.supplyAsync(() -> reconcileResponse);
-                    }
-                }).toCompletableFuture().join();
+                .invoke(new Reconcile(customerId));
+        if (!reconcileResponse.isSuccess()) {
+            log.info("Reconcile failed, reporting the incident");
+            componentClient
+                .forWorkflow("incidents-workflow" + UUID.randomUUID().toString())
+                .method(IncidentWorkflow::process)
+                .invoke(new Incident(UUID.randomUUID().toString(), reconcileResponse.message(), ""));
+        }
     }
 
     private void addPayment(String customerId, Payment payment) {
         componentClient
                 .forEventSourcedEntity(payment.customerId())
                 .method(CustomerEntity::addPayment)
-                .invokeAsync(payment).toCompletableFuture().join();
+                .invoke(payment);
     }
 
     private String getDate() {
