@@ -13,13 +13,11 @@ import org.slf4j.LoggerFactory;
 public class ToolExecutionService {
 
     private static final Logger log = LoggerFactory.getLogger(ToolExecutionService.class);
-//    private final String productionSystemUrl;
     private final HttpClient externalServiceHttpClient;
     private final Config config;
 
     public ToolExecutionService(Config config, HttpClientProvider httpClientProvider) {
         this.config = config;
-//        productionSystemUrl = config.getString("retailer.productionSystemUrl");
         externalServiceHttpClient = httpClientProvider.httpClientFor("external-service");
     }
 
