@@ -2,6 +2,7 @@ package com.akka.application;
 
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.client.ComponentClient;
+import akka.javasdk.http.HttpClientProvider;
 import akka.javasdk.workflow.Workflow;
 import com.akka.application.command.ProcessIncident;
 import com.akka.application.model.ChainOfThought;
@@ -16,9 +17,10 @@ import com.typesafe.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @ComponentId("ReActWorkflow")
 public class ReActWorkflow extends Workflow<WorkFlowState> {
@@ -32,9 +34,9 @@ public class ReActWorkflow extends Workflow<WorkFlowState> {
     private final AiService aiService;
     private final ToolExecutionService toolExecutionService;
 
-    public ReActWorkflow(ComponentClient componentClient, Config config) {
+    public ReActWorkflow(ComponentClient componentClient, Config config, HttpClientProvider httpClientProvider) {
         this.componentClient = componentClient;
-        this.toolExecutionService = new ToolExecutionService(config);
+        this.toolExecutionService = new ToolExecutionService(config,httpClientProvider);
         this.aiService = new AiService();
     }
 
@@ -57,20 +59,20 @@ public class ReActWorkflow extends Workflow<WorkFlowState> {
         return workflow()
                 .addStep(prepare())
                 .addStep(callLLM())
-                .addStep(toolExecution());
+                .addStep(toolExecution())
+                .timeout(Duration.of(10, ChronoUnit.SECONDS));
     }
 
     private Step prepare() {
         return step("prepare_agent")
-                .asyncCall(ProcessIncident.class, cmd ->
-                        componentClient
-                                .forEventSourcedEntity(promptTemplateName)
-                                .method(PromptEntity::getPromptTemplate)
-                                .invokeAsync().thenApply(template ->
-                                        new ContextForLLM(List.of(
-                                                new Conversation("system", template.content()),
-                                                new Conversation("user", cmd.exception()))))
-                )
+                .call(ProcessIncident.class, cmd -> {
+                    var template = componentClient
+                            .forEventSourcedEntity(promptTemplateName)
+                            .method(PromptEntity::getPromptTemplate).invoke();
+                    return new ContextForLLM(List.of(
+                            new Conversation("system", template.content()),
+                            new Conversation("user", cmd.exception())));
+                })
                 .andThen(ContextForLLM.class, response ->
                         effects()
                                 .updateState(currentState().updateConversation(response))
@@ -79,18 +81,17 @@ public class ReActWorkflow extends Workflow<WorkFlowState> {
 
     private Step callLLM() {
         return step("llm_call")
-                .asyncCall(ContextForLLM.class, context -> CompletableFuture
-                        .supplyAsync(() -> aiService.execute(currentState().context()))
-                        .thenApply(s -> getChainOfThought(s.getFirst())))
-                .andThen(ChainOfThought.class, this::decider);
+                .call(ContextForLLM.class, context -> {
+                    var s = aiService.execute(currentState().context());
+                    return getChainOfThought(s.getFirst());
+                }).andThen(ChainOfThought.class, this::decider);
     }
 
     private Step toolExecution() {
         return step("tool_execution")
-                .asyncCall(ChainOfThought.class, input -> {
-                    return CompletableFuture
-                            .supplyAsync(() -> toolExecutionService.execute(input, OBSERVATION_OUTPUT_FORMAT))
-                            .thenApply(this::getChainOfThought);
+                .call(ChainOfThought.class, input -> {
+                    var s = toolExecutionService.execute(input, OBSERVATION_OUTPUT_FORMAT);
+                    return getChainOfThought(s);
                 })
                 .andThen(ChainOfThought.class, this::decider);
     }

@@ -1,5 +1,7 @@
 package com.akka.service;
 
+import akka.javasdk.http.HttpClient;
+import akka.javasdk.http.HttpClientProvider;
 import com.akka.application.model.ChainOfThought;
 import com.akka.application.model.CustomerDetails;
 import com.akka.application.model.Payment;
@@ -11,16 +13,12 @@ import org.slf4j.LoggerFactory;
 public class ToolExecutionService {
 
     private static final Logger log = LoggerFactory.getLogger(ToolExecutionService.class);
-    private final String productionSystemUrl;
-    private final SimpleHttpClient httpClient;
-    private final AsyncHttpClient client;
+    private final HttpClient externalServiceHttpClient;
     private final Config config;
 
-    public ToolExecutionService(Config config) {
+    public ToolExecutionService(Config config, HttpClientProvider httpClientProvider) {
         this.config = config;
-        productionSystemUrl = config.getString("retailer.productionSystemUrl");
-        client = new AsyncHttpClient();
-        httpClient = new SimpleHttpClient();
+        externalServiceHttpClient = httpClientProvider.httpClientFor("external-service");
     }
 
     public String execute(ChainOfThought chainOfThought, String toolOutput) {
@@ -29,19 +27,19 @@ public class ToolExecutionService {
             String tool = chainOfThought.Tool();
             if (tool.equalsIgnoreCase("get_customer_details")) {
                 log.info("Executing Tool: get_customer_details with input {}", chainOfThought.input());
-                CustomerDetails customerDetails = httpClient.get(productionSystemUrl + "/external/api/customers/" + chainOfThought.input(), CustomerDetails.class);
+                CustomerDetails customerDetails = externalServiceHttpClient.GET("/external/api/customers/" + chainOfThought.input()).responseBodyAs(CustomerDetails.class).invoke().body();
                 toolOutput = String.format(toolOutput, customerDetails);
             } else if (tool.equalsIgnoreCase("get_sales_details")) {
                 log.info("Executing Tool: get_sales_details with input {}", chainOfThought.input());
                 String input = String.valueOf(chainOfThought.input());
                 String customerInvoice = input.replace(",", "/").replaceAll(" ", "");
-                SalesInvoice salesInvoice = httpClient.get(productionSystemUrl + "/external/api/sales/" + customerInvoice, SalesInvoice.class);
+                SalesInvoice salesInvoice = externalServiceHttpClient.GET("/external/api/sales/" + customerInvoice).responseBodyAs(SalesInvoice.class).invoke().body();
                 toolOutput = String.format(toolOutput, salesInvoice.toString());
             } else if (tool.equalsIgnoreCase("get_payment_details")) {
                 log.info("Executing Tool: get_payment_details with input {}", chainOfThought.input());
                 String input = chainOfThought.input();
                 String customerInvoice = input.replace(",", "/").replaceAll(" ", "");
-                Payment payment = httpClient.get(productionSystemUrl + "/external/api/payments/" + customerInvoice, Payment.class);
+                Payment payment = externalServiceHttpClient.GET( "/external/api/payments/" + customerInvoice).responseBodyAs(Payment.class).invoke().body();
                 toolOutput = String.format(toolOutput, payment.toString());
             } else if (tool.equalsIgnoreCase("update_payment_request")) {
                 log.info("Executing Tool: update_payment_request with input {}", chainOfThought.input());
@@ -51,13 +49,13 @@ public class ToolExecutionService {
                     toolOutput = String.format(toolOutput, "The input given is not in the expected format. LLM you failed me!!!");
                 } else {
                     Payment pay = new Payment(paymentValues[0], paymentValues[1], Double.valueOf(paymentValues[2]), paymentValues[3], paymentValues[4], paymentValues[5], paymentValues[6]);
-                    Payment payment = httpClient.post(productionSystemUrl + "/external/api/payments", pay, Payment.class);
+                    Payment payment = externalServiceHttpClient.POST("/external/api/payments").withRequestBody(pay).responseBodyAs(Payment.class).invoke().body();
                     toolOutput = String.format(toolOutput, "201 Created. Updated Payment details " + payment.toString());
                 }
             } else if (tool.equalsIgnoreCase("retry_reconciliation_request")) {
                 log.info("Executing Tool: retry_reconciliation_request with input {}", chainOfThought.input());
                 String input = String.valueOf(chainOfThought.input());
-                String reconcileResp = httpClient.get(productionSystemUrl + "/external/api/reconcile/" + input, String.class);
+                String reconcileResp = externalServiceHttpClient.GET("/external/api/reconcile/" + input).responseBodyAs(String.class).invoke().body();
                 toolOutput = String.format(toolOutput, reconcileResp);
             } else {
                 log.error("Selected Unknown Tool: {}", chainOfThought.Tool());

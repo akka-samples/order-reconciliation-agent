@@ -12,9 +12,8 @@ import com.akka.domain.ExceptionReasoningResponse;
 import com.akka.domain.GetConversations;
 
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/api/react-agent")
 public class ReActAgentEndpoint {
 
@@ -31,22 +30,20 @@ public class ReActAgentEndpoint {
     }
 
     @Get("/{agentId}")
-    public CompletionStage<GetConversations> getConversationsForAgent(String agentId) {
-        return componentClient
+    public GetConversations getConversationsForAgent(String agentId) {
+        return new GetConversations(componentClient
                 .forWorkflow(agentId)
                 .method(ReActWorkflow::getConversations)
-                .invokeAsync()
-                .thenApply(GetConversations::new);
+                .invoke());
     }
 
     @Post()
-    public CompletionStage<ExceptionReasoningResponse> requestAgentToSolveIncident(ExceptionReasoningRequest request) {
+    public ExceptionReasoningResponse requestAgentToSolveIncident(ExceptionReasoningRequest request) {
         String agentId = UUID.randomUUID().toString();
         ProcessIncident command = new ProcessIncident(agentId, String.format(queryTemplate, request.exceptionDetails()));
-        return componentClient
+        return new ExceptionReasoningResponse(componentClient
                 .forWorkflow(agentId)
                 .method(ReActWorkflow::solveIncident)
-                .invokeAsync(command)
-                .thenApply(ExceptionReasoningResponse::new);
+                .invoke(command));
     }
 }
